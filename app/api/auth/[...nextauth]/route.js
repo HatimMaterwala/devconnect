@@ -58,13 +58,18 @@ const handler = NextAuth({
         await connectToDB();
         const userExists = await User.findOne({ email: profile.email });
         if (!userExists) {
-          await User.create({
+          const newUser = new User({
             email: profile.email,
             image: profile.picture,
             firstName: profile.given_name || "Dev",
             lastName: profile.family_name || "User",
-            password: "oauth" 
+            password: "oauth",
+            joined: new Date()
           });
+        
+          const savedUser = await newUser.save();
+          console.log("✅ New user created with timestamps:", savedUser.joined);
+
         }
         return true;
       } catch (e) {

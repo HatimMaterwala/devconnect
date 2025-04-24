@@ -1,9 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { signIn, getProviders, useSession} from "next-auth/react";
+import { signIn, getProviders, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer, toast } from "react-toastify";
 
 const signUp = () => {
   const Router = useRouter();
@@ -11,7 +11,7 @@ const signUp = () => {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
-  const {data : session} = useSession();
+  const { data: session } = useSession();
 
   const [providers, setProviders] = useState([]);
   useEffect(() => {
@@ -22,58 +22,56 @@ const signUp = () => {
     getProvidersList();
   }, []);
 
-  useEffect(()=>{
-    if(session){
-      Router.push('/');
+  useEffect(() => {
+    if (session) {
+      Router.push("/");
     }
-  },[session])
+  }, [session]);
 
   const handleLogin = async () => {
-    try{
-        const userData = await fetch("/api/signup-api",{
-            method: "POST",
-            headers:{
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                firstName,
-                lastName,
-                email,
-                password : pass
-            })
-        })
+    try {
+      const userData = await fetch("/api/signup-api", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          password: pass,
+        }),
+      });
 
-        if(userData.ok){
+      if (userData.ok) {
+        const res = await signIn("credentials", {
+          redirect: false,
+          email,
+          password: pass,
+        });
 
-            const res = await signIn("credentials",{
-                redirect: false,
-                email,
-                password: pass
-            });
-
-            if(res?.ok){
-              const notify = () => toast("Wow so easy!");
-              notify();
-            }else{
-                console.log("Auto-Login Failed");
-            }
-
-            setEmail("");
-            setPass("");
-            setFirstName("");
-            setLastName("");
-
-        }else{
-            const errMsg = await userData.text()
-            console.log("Sign-Up Failed : " + errMsg);
+        if (res?.ok) {
+          const notify = () => toast("Wow so easy!");
+          notify();
+        } else {
+          console.log("Auto-Login Failed");
         }
-    }catch(e){
-        console.log("Error Sending Request!!")
+
+        setEmail("");
+        setPass("");
+        setFirstName("");
+        setLastName("");
+      } else {
+        const errMsg = await userData.text();
+        console.log("Sign-Up Failed : " + errMsg);
+      }
+    } catch (e) {
+      console.log("Error Sending Request!!");
     }
-  }
+  };
 
   return (
-    <div className="fullBody w-full h-[89vh] flex flex-col gap-2 justify-center items-center">
+    <div className="fullBody w-full h-[89vh] flex flex-col gap-2 justify-center items-center mt-[11vh]">
       <h1 className="text-2xl font-bold">
         <strong className="text-red-600"> JOIN </strong>the Best Dev's Community
       </h1>
@@ -87,7 +85,9 @@ const signUp = () => {
                 placeholder="First Name"
                 name="fName"
                 value={firstName}
-                onChange={(e)=>{setFirstName(e.target.value)}}
+                onChange={(e) => {
+                  setFirstName(e.target.value);
+                }}
                 className="bg-yellow-300 text-black p-2 rounded-lg w-full"
                 required
               />
@@ -100,7 +100,9 @@ const signUp = () => {
                 placeholder="Last Name"
                 name="LName"
                 value={lastName}
-                onChange={(e)=>{setLastName(e.target.value)}}
+                onChange={(e) => {
+                  setLastName(e.target.value);
+                }}
                 className="bg-yellow-300 text-black p-2 rounded-lg w-full"
               />
             </div>
@@ -114,7 +116,9 @@ const signUp = () => {
               name="email"
               required
               value={email}
-              onChange={(e)=>{setEmail(e.target.value)}}
+              onChange={(e) => {
+                setEmail(e.target.value);
+              }}
               className="bg-yellow-300 text-black p-2 rounded-lg w-full"
             />
           </div>
@@ -126,7 +130,9 @@ const signUp = () => {
               placeholder="password"
               name="password"
               value={pass}
-              onChange={(e)=>{setPass(e.target.value)}}
+              onChange={(e) => {
+                setPass(e.target.value);
+              }}
               required
               className="bg-yellow-300 text-black p-2 rounded-lg w-full"
             />
@@ -142,23 +148,20 @@ const signUp = () => {
       <hr className="w-1/3 mt-4 border border-black" />
 
       <div className="googlesignUp mt-2 w-1/3 flex justify-center items-center gap-2">
-        {providers &&
-          Object.values(providers).map((provider) => (
-            <button
-              className="cursor-pointer bg-blue-200 p-2 rounded-lg"
-              key={provider.name}
-              onClick={() => {
-                signIn(provider.id);
-              }}
-            >
-              <Image
-                src={`/${provider.name}.png`}
-                width={30}
-                height={30}
-                alt={provider.name}
-              />
-            </button>
-          ))}
+        <button
+          className="cursor-pointer bg-yellow-300 p-2 rounded-lg"
+          onClick={async () => {
+            await signIn("google");
+          }}
+        >
+          <Image
+            src={'/google.png'}
+            width={30}
+            height={30}
+            alt={'google_image'}
+            className="shadow-sm shadow-amber-700 rounded-full"
+          />
+        </button>
       </div>
       <ToastContainer />
     </div>
