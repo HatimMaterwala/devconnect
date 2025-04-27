@@ -12,6 +12,7 @@ const PostCard = ({ title, description, image, author, timestamp }) => {
   const profileRef = useRef(null);
   const { data: session } = useSession();
   const Router = useRouter();
+  const followRef = useRef();
 
   const handleProfileToggle = () => {
     setProfileToggle((prev) => !prev);
@@ -24,20 +25,30 @@ const PostCard = ({ title, description, image, author, timestamp }) => {
 
   const handleFollow = async (id) => {
     if (session) {
+      followRef.current.disabled = true;
       const followUser = await fetch(
-        `api/follow?from=${session.user.id}&to=${id}`,{
+        `api/follow?from=${session.user.id}&to=${id}`,
+        {
           method: "POST",
-          headers : {
-            "Content-Type" : "application/json"
-          }
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
       );
 
-      if(followUser.ok){
-        
+      if (followUser.ok) {
+        followRef.current.textContent = "Followed"
+      }else {
+        console.log("Cannot Like Right Now ! (Fetch Error)");
       }
+
+      followRef.current.disabled = false;
     }
   };
+
+  const handleThumbsUp = async () => {
+
+  }
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -77,6 +88,7 @@ const PostCard = ({ title, description, image, author, timestamp }) => {
           >
             <button
               onClick={() => handleFollow(author._id)}
+              ref={followRef}
               className="p-1 border-b border-black hover:underline cursor-pointer bg-black text-white rounded-2xl"
             >
               Follow
@@ -141,22 +153,26 @@ const PostCard = ({ title, description, image, author, timestamp }) => {
         </p>
       </div>
 
-      <div className="flex postCounts gap-2 p-2 bg-yellow-300 rounded-b-md">
-        <Image
-          src={"/thumbs_up.png"}
-          width={25}
-          height={25}
-          alt={`like_post`}
-          className="rounded-full"
-        />
+      <div className="flex postCounts gap-1 p-2 bg-yellow-300 rounded-b-md">
+        <div onClick={handleThumbsUp} className="p-1 hover:bg-yellow-500 rounded-md">
+          <Image
+            src={"/thumbs_up.png"}
+            width={30}
+            height={30}
+            alt={`like_post`}
+            className="rounded-full cursor-pointer"
+          />
+        </div>
 
-        <Image
-          src={"/comments.svg"}
-          width={25}
-          height={25}
-          alt={`comment`}
-          className="rounded-full"
-        />
+        <div className="p-1 hover:bg-yellow-500 rounded-md">
+          <Image
+            src={"/comments.svg"}
+            width={30}
+            height={30}
+            alt={`comment`}
+            className="rounded-full cursor-pointer"
+          />
+        </div>
       </div>
     </div>
   );
