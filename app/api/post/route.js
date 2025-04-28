@@ -44,7 +44,7 @@ export async function GET(){
 
         let newArray = [];
 
-        const allPosts = await Post.find({}).sort({_id : -1}).populate('author','firstName lastName image bio');
+        const allPosts = await Post.find({}).sort({_id : -1}).populate('author','firstName lastName image bio followers');
 
         allPosts.forEach((post) => {
           let plainpost = post.toObject();

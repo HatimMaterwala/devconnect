@@ -13,8 +13,16 @@ const PostCard = ({ title, description, image, author, timestamp }) => {
   const { data: session } = useSession();
   const Router = useRouter();
   const followRef = useRef();
+  const [fers, setFers] = useState("Follow")
 
   const handleProfileToggle = () => {
+    if(author?.followers?.includes(session.user.id)){
+      console.log("User Already Follows !!");
+      setFers("Unfollow");
+    }
+    else{
+      console.log("User Doesn't Follow !!");
+    }
     setProfileToggle((prev) => !prev);
   };
 
@@ -25,9 +33,16 @@ const PostCard = ({ title, description, image, author, timestamp }) => {
 
   const handleFollow = async (id) => {
     if (session) {
+      const prevFers = fers;  
       followRef.current.disabled = true;
+      if(fers === "Follow"){
+        setFers("Unfollow");
+      }else{
+        setFers("Follow");
+      }
+
       const followUser = await fetch(
-        `api/follow?from=${session.user.id}&to=${id}`,
+        `api/follow?from=${session.user.id}&to=${id}&request=${prevFers}`,
         {
           method: "POST",
           headers: {
@@ -36,10 +51,11 @@ const PostCard = ({ title, description, image, author, timestamp }) => {
         }
       );
 
-      if (followUser.ok) {
-        followRef.current.textContent = "Followed"
+      if (followUser.status === 200) {
+        console.log("Follow/Unfollow done successfully !!");
       }else {
-        console.log("Cannot Like Right Now ! (Fetch Error)");
+        setFers(prevFers);
+        console.log("Cannot Follow Right Now ! (Fetch Error)");
       }
 
       followRef.current.disabled = false;
@@ -86,13 +102,13 @@ const PostCard = ({ title, description, image, author, timestamp }) => {
             ref={profileRef}
             className="bg-yellow-300 flex flex-col p-2 absolute top-12 left-8 rounded-2xl text-sm font-bold border w-[7rem]"
           >
-            <button
+            {(session.user.id !== author._id) && <button
               onClick={() => handleFollow(author._id)}
               ref={followRef}
               className="p-1 border-b border-black hover:underline cursor-pointer bg-black text-white rounded-2xl"
             >
-              Follow
-            </button>
+              {fers}
+            </button>}
             <button
               onClick={handleProfileClick}
               className="p-1 border-black hover:underline cursor-pointer"
@@ -114,21 +130,6 @@ const PostCard = ({ title, description, image, author, timestamp }) => {
             })}
         </div>
       </div>
-
-      {/* <div className="contentPart mt-1 flex flex-col gap-2 p-2">
-        <div className="contentTitle font-bold">{title}</div>
-
-        <div className="relative w-full h-[400px] rounded-md overflow-hidden">
-          <Image
-            src={image || "/profile.webp"}
-            alt={`post_image`}
-            className="object-contain"
-            fill={true}
-          />
-        </div>
-
-        <div className="caption text-sm">{description}</div>
-      </div> */}
 
       <div className="flex flex-col gap-5 px-6 pt-4 pb-6">
         <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white leading-snug">

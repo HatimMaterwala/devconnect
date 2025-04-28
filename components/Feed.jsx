@@ -8,6 +8,7 @@ const Feed = () => {
     const allPosts = await fetch("/api/post", {
       method: "GET",
     });
+
     const resPosts = await allPosts.json();
 
     if (resPosts) {
@@ -21,7 +22,7 @@ const Feed = () => {
   }, []);
 
   return (
-    <div className="w-[35%] flex flex-col items-center mt-[11vh]">
+    <div className="w-[90%] md:w-[40%] flex flex-col items-center mt-[11vh]">
       {posts.map((post) => {
         return (
           <div key={post._id} className="w-full mt-2 mb-2">
