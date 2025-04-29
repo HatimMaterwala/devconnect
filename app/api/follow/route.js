@@ -53,11 +53,9 @@ export async function POST(req) {
         const alreadyFollowed = followingUser.following.includes(to);
 
         if (alreadyFollowed) {
-          let fingUser = followingUser.following.filter((id) => id != to);
-          let fedUser = followedUser.followers.filter((id) => id != from);
 
-          followedUser.following = fingUser;
-          followingUser.followers = fedUser;
+          await User.updateOne({_id : from}, {$pull : {following : to}});
+          await User.updateOne({_id : to},{$pull : {followers : from}}) ;
 
           await followingUser.save();
           await followedUser.save();

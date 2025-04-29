@@ -43,7 +43,7 @@ const Navbar = () => {
           <Link href={"/"} className="cursor-pointer text-yellow-300">
             <span className="material-symbols-outlined scale-110">home</span>
           </Link>
-          <Link href={"/mynetwork"} className="cursor-pointer text-yellow-300">
+          <Link href={"/allies"} className="cursor-pointer text-yellow-300">
             <span className="material-symbols-outlined scale-150">groups</span>
           </Link>
           <Link className="cursor-pointer" href={"/post/create"}>
