@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 const createPost = () => {
-  const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [image, setImage] = useState();
   const { data: session } = useSession();
@@ -40,7 +39,7 @@ const createPost = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, desc, id, imageUrl }),
+        body: JSON.stringify({ desc, id, imageUrl }),
       });
 
       if (createPost.ok) {
@@ -58,26 +57,12 @@ const createPost = () => {
     <div className="CreatePostForm w-full flex justify-center mt-[11vh]">
       <div className="CreateContainer w-[70%] bg-yellow-300 p-3 rounded-xl border-4 shadow-2xl shadow-black mt-[1rem] mb-[1.5rem]">
         <form action="" className="flex flex-col gap-3">
-          <div className="Title flex justify-center items-center font-bold text-2xl text-white bg-black p-2 rounded-2xl">
+          <div className="flex justify-center items-center font-bold text-2xl text-white bg-black p-2 rounded-2xl">
             CREATE A POST
-          </div>
-          <div className="flex flex-col gap-1">
-            <label htmlFor="Title" className="font-bold text-xl">
-              Title
-            </label>
-            <input
-              required
-              type="text"
-              id="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder={`Title goes here!`}
-              className="p-2 bg-black rounded-md text-white outline-none"
-            />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="Title" className="font-bold text-xl">
+            <label htmlFor="Content" className="font-bold text-xl">
               Content
             </label>
             <textarea

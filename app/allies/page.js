@@ -19,7 +19,7 @@ const Allies = () => {
         );
 
         const fetchedFollowers = await allFollowers.json();
-        console.log(fetchFollowers);
+        console.log(fetchedFollowers);
         setAllAllies(fetchedFollowers);
       }
     } catch (e) {
@@ -31,20 +31,23 @@ const Allies = () => {
     fetchFollowers();
   }, [session]);
   return (
-    <div className="mt-[11vh] flex justify-center items-center w-full flex-col gap-5">
+    <div className="mt-[4rem] flex justify-center items-center w-full flex-col gap-5 px-4">
       <div className="title mt-[2vh] text-2xl font-bold rounded-md">
         <strong className="text-yellow-300 text-4xl text-shadow-md text-shadow-black">
           Allies
         </strong>
       </div>
-      {allAllies.map((allies) => (
-        <FollowersCard
-          key={allies._id}
-          firstName={allies.firstName}
-          lastName={allies.lastName}
-          image={allies.image}
-        />
-      ))}
+      <div className="w-full flex gap-2 flex-wrap">
+        {allAllies.map((allies) => (
+          <FollowersCard
+            key={allies._id}
+            firstName={allies.firstName}
+            lastName={allies.lastName}
+            image={allies.image}
+            id={allies._id}
+          />
+        ))}
+      </div>
     </div>
   );
 };

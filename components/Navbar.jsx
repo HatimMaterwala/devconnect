@@ -31,7 +31,7 @@ const Navbar = () => {
   }, [profileMenu]);
 
   return (
-    <nav className="bg-black fixed top-0 w-full z-[100] h-[11vh] flex  justify-between items-center p-3">
+    <nav className="bg-black fixed top-0 w-full z-[100] h-[4rem] flex  justify-between items-center p-3">
       <div className="navLogo">
         <Link href="/" className="text-2xl font-bold text-yellow-300">
           DevConnect

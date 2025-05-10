@@ -1,9 +1,16 @@
 import React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-const FollowersCard = ({ firstName, lastName, image }) => {
+const FollowersCard = ({ firstName, lastName, image, id }) => {
+  const Router = useRouter();
+
+  const handleFollowers = async () => {
+    Router.push(`/user/${id}`);
+  }
+
   return (
-    <div className="w-1/3 border p-3 flex justify-start items-center gap-2 font-bold bg-yellow-300 text-black rounded-md">
+    <div onClick={handleFollowers} className="w-[30%] border p-3 flex justify-start items-center gap-2 font-bold bg-yellow-300 text-black rounded-md cursor-pointer">
       <div className="imageProfile">
         <Image
           src={image}

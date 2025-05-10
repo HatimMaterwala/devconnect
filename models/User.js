@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { type } from "os";
 
 const userSchema = new mongoose.Schema(
   {
@@ -50,6 +51,11 @@ const userSchema = new mongoose.Schema(
       ref: 'User',
       default : []
     },
+    likedPosts : {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'Post',
+      default: []
+    },
     location: {
       type: String,
       required: false,
@@ -58,6 +64,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
       default: "User",
+    },
+    posts : {
+      type : [mongoose.Schema.Types.ObjectId],
+      ref : 'Post',
+      default : []
     },
     joined: {
         type : Date,

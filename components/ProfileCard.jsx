@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 
 const ProfileCard = ({userID}) => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [profileData, setProfileData] = useState(null);
   const [loader, setLoader] = useState(false);
 
@@ -14,8 +14,8 @@ const ProfileCard = ({userID}) => {
       if (session) {
         const profileUser = await fetch(`/api/profile?id=${userID}`);
         const res = await profileUser.json();
-        console.log(res);
         setProfileData(res);
+        console.log(res);
       }
       setLoader(false);
     } catch (e) {
@@ -24,8 +24,10 @@ const ProfileCard = ({userID}) => {
   };
 
   useEffect(() => {
-    fetchUser();
-  }, [session]);
+    if(status === "authenticated"){
+      fetchUser();
+    }
+  }, [status]);
 
   return (
     <div className="profile w-full flex justify-center items-center mt-[13vh]">

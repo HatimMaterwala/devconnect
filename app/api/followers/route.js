@@ -11,6 +11,7 @@ export async function GET(req) {
       const sessionUser = await User.findById(id).populate('followers', 'firstName lastName image');
       if (sessionUser) {
         let followerDetails = await sessionUser.followers;
+        console.log(followerDetails); 
         return new Response(JSON.stringify(followerDetails), { status: 200 });
       }
     } catch (e) {

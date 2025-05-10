@@ -1,37 +1,20 @@
-"use client";
-import { useEffect, useState } from "react";
 import PostCard from "./PostCard";
 
-const Feed = () => {
-  const [posts, setPosts] = useState([]);
-  const fetchData = async () => {
-    const allPosts = await fetch("/api/post", {
-      method: "GET",
-    });
-
-    const resPosts = await allPosts.json();
-
-    if (resPosts) {
-      setPosts(resPosts);
-      console.log(resPosts);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+const Feed = ({feedPosts, likedPosts}) => {
 
   return (
-    <div className="w-[90%] md:w-[40%] flex flex-col items-center mt-[11vh]">
-      {posts.map((post) => {
+    <div className=" flex flex-col justify-center items-center">
+      {feedPosts.map((post) => {
         return (
-          <div key={post._id} className="w-full mt-2 mb-2">
+          <div key={post._id} className="mt-2 mb-2 flex justify-center items-center">
             <PostCard
-              title={post.title}
               description={post.description}
               image={post.image || null}
               author={post.author}
               timestamp={post.timestamp}
+              id={post._id}
+              likes={post.likes}
+              liked = {likedPosts}
             />
           </div>
         );
