@@ -18,6 +18,7 @@ const PostCard = ({
   liked,
   onDelete,
   comments,
+  onAddComment,
 }) => {
   const [profileToggle, setProfileToggle] = useState(false);
   const [commentBox, setCommentBox] = useState(false);
@@ -137,13 +138,23 @@ const PostCard = ({
       );
 
       if (postComment.status === 200) {
+        const newComment = {
+          _id: crypto.randomUUID(), // you can remove this if backend returns _id
+          id: {image : session.user.image,
+            firstName : session.user.name.split(" ")[0],
+            lastName : session.user.name.split(" ")[1]
+          },
+          wrote: comment,
+          createdAt: new Date().toISOString(),
+        };
+        onAddComment?.(id, newComment);
         setComment("");
-        toast.success("✅ Thanks For Commenting !!");
+        toast.success("Thanks For Commenting !!");
       } else {
         toast.error("Comment Failed, Try Again !!!");
       }
     } catch (e) {
-      toast.error("💥 Server error while commenting");
+      toast.error("Server error while commenting");
     }
   };
 
@@ -324,7 +335,7 @@ const PostCard = ({
         )}
 
         {commentBox && (
-          <div className="bg-black p-2 w-full mt-1 flex flex-col gap-1">
+          <div className="bg-black p-2 w-full mt-1 flex flex-col gap-1 ">
             <div className="flex gap-2 w-full">
               <div className="photo">
                 <Image
@@ -366,17 +377,25 @@ const PostCard = ({
           </div>
         )}
 
-        <div className="w-full">
-          {comments.map((oneComment) => {
-            <div className="w-full">
-              <CommentCard
-                userId={oneComment.id}
-                commentText={oneComment.wrote}
-                when={oneComment.createdAt}
-              />
-            </div>;
-          })}
-        </div>
+        {commentBox && comments.length > 0 && (
+          <div className="w-full p-2  bg-black">
+            <div className="commentTitle font-bold text-xl px-1">Comments</div>
+
+            <div className="max-h-[17rem] overflow-y-scroll scrollbar-thin mb-2 mt-2">
+              {comments.map((oneComment) => {
+                return (
+                  <div key={oneComment._id} className="w-full p-2">
+                    <CommentCard
+                      userId={oneComment.id}
+                      commentText={oneComment.wrote}
+                      when={oneComment.createdAt}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {pathname === "/profile" && (
           <div className="flex justify-end items-center p-1 gap-2">

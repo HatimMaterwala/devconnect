@@ -1,6 +1,6 @@
 import PostCard from "./PostCard";
 
-const Feed = ({feedPosts, likedPosts}) => {
+const Feed = ({feedPosts, likedPosts, onAddComment}) => {
 
   return (
     <div className=" flex flex-col justify-center items-center">
@@ -16,6 +16,7 @@ const Feed = ({feedPosts, likedPosts}) => {
               likes={post.likes}
               liked = {likedPosts}
               comments = {post.comments}
+              onAddComment={onAddComment}
             />
           </div>
         );

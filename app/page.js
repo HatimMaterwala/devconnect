@@ -17,21 +17,33 @@ export default function Home() {
     const resPosts = await allPosts.json();
 
     if (resPosts) {
-      const {posts , liked} = resPosts;
+      const { posts, liked } = resPosts;
       setGetPosts(posts);
       setLikedP(liked);
     }
   };
 
   useEffect(() => {
-    if(status === "authenticated"){
+    if (status === "authenticated") {
       fetchData();
     }
   }, [status, session?.user?.id]);
 
   return (
     <div className="w-full flex justify-center items-center mt-[5rem]">
-      <Feed feedPosts={getPosts} likedPosts={likedP} />
+      <Feed
+        feedPosts={getPosts}
+        likedPosts={likedP}
+        onAddComment={(postId, newComment) => {
+          setGetPosts((prev) =>
+            prev.map((post) =>
+              post._id === postId
+                ? { ...post, comments: [...post.comments, newComment] }
+                : post
+            )
+          );
+        }}
+      />
     </div>
   );
 }

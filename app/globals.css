@@ -47,3 +47,22 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;     /* Firefox */
 }
+
+/* Custom thin black scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: white; /* Black */
+  border-radius: 2rem;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: white black; /* Firefox */
+}

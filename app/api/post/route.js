@@ -50,6 +50,7 @@ export async function GET(req) {
     await connectToDB();
 
     let newArray = [];
+
     let userExists = await User.findById(userId);
 
     if (!userExists) {
@@ -60,7 +61,8 @@ export async function GET(req) {
 
     const allPosts = await Post.find({})
       .sort({ _id: -1 })
-      .populate("author", "firstName lastName image bio followers");
+      .populate("author", "firstName lastName image bio followers")
+      .populate("comments.id","image firstName lastName");
     allPosts.forEach((post) => {
       let plainpost = post.toObject();
       plainpost.timestamp = post._id.getTimestamp();
