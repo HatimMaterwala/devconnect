@@ -5,6 +5,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useFollow } from "@/app/context/FollowContext";
 import { usePathname } from "next/navigation";
+import toast from "react-hot-toast";
+import CommentCard from "./CommentCard";
 
 const PostCard = ({
   description,
@@ -14,9 +16,12 @@ const PostCard = ({
   id,
   likes,
   liked,
-  onDelete
+  onDelete,
+  comments,
 }) => {
   const [profileToggle, setProfileToggle] = useState(false);
+  const [commentBox, setCommentBox] = useState(false);
+  const [comment, setComment] = useState();
 
   const [isHiding, setIsHiding] = useState(false);
 
@@ -114,6 +119,34 @@ const PostCard = ({
     }
   };
 
+  const handleComment = async () => {
+    if (!comment || comment.trim().length === 0) {
+      return toast.error("Comment cannot be empty");
+    }
+
+    try {
+      const postComment = await fetch(
+        `/api/comment?userid=${session.user.id}&postid=${id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ comment }),
+        }
+      );
+
+      if (postComment.status === 200) {
+        setComment("");
+        toast.success("✅ Thanks For Commenting !!");
+      } else {
+        toast.error("Comment Failed, Try Again !!!");
+      }
+    } catch (e) {
+      toast.error("💥 Server error while commenting");
+    }
+  };
+
   const editPost = async () => {};
 
   const deletePost = async (e) => {
@@ -127,15 +160,15 @@ const PostCard = ({
     });
 
     if (thisPost.ok) {
-      console.log("Post Deleted Successfully");
+      toast.success("🗑️ Post deleted!");
       setIsHiding(true);
 
       setTimeout(() => {
         onDelete?.();
       }, 300);
     } else {
-      console.log("Delete Failed");
       e.currentTarget.disabled = false;
+      toast.success("Delte Failed, Try Again");
     }
   };
 
@@ -157,154 +190,212 @@ const PostCard = ({
   const toggleExpand = () => setIsExpanded((prev) => !prev);
 
   return (
-    (
-      <div
-        className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          isHiding ? "opacity-0 scale-95 max-h-0 p-0 mb-0" : "max-h-[1000px]"
-        } ${
-          pathname === "/profile"
-            ? "w-[21.82rem] shadow-lg shadow-yellow-300"
-            : "w-[35rem]"
-        } bg-black border border-black text-white rounded-md flex flex-col justify-between`}
-      >
-        <div className="authorDetails flex justify-start items-center gap-2 bg-yellow-300 p-2 text-black rounded-t-md relative">
-          <Image
-            src={author.image || "/profile.webp"}
-            width={40}
-            height={40}
-            alt={`${author.firstName}`}
-            className="rounded-full border-2 border-black cursor-pointer"
-            priority
-            onClick={handleProfileToggle}
-          />
+    <div
+      className={`transition-all duration-300 ease-in-out overflow-hidden ${
+        isHiding ? "opacity-0 scale-95 max-h-0 p-0 mb-0" : "max-h-[1000px]"
+      } ${
+        pathname === "/profile"
+          ? "w-[21.82rem] shadow-lg shadow-yellow-300"
+          : "w-[35rem]"
+      } bg-black border border-black text-white rounded-md flex flex-col justify-between`}
+    >
+      <div className="authorDetails flex justify-start items-center gap-2 bg-yellow-300 p-2 text-black rounded-t-md relative">
+        <Image
+          src={author.image || "/profile.webp"}
+          width={40}
+          height={40}
+          alt={`${author.firstName}`}
+          className="rounded-full border-2 border-black cursor-pointer"
+          priority
+          onClick={handleProfileToggle}
+        />
 
-          {profileToggle && (
-            <div
-              ref={profileRef}
-              className="bg-yellow-300 flex flex-col p-2 absolute top-12 left-8 rounded-2xl text-sm font-bold border w-[7rem] z-50"
-            >
-              {session?.user?.id !== author._id && (
-                <>
-                  <button
-                    onClick={() => handleFollow(author._id)}
-                    ref={followRef}
-                    className="p-1 border-b border-black hover:underline cursor-pointer bg-black text-white rounded-2xl"
-                  >
-                    {isFollowing ? "Unfollow" : "Follow"}
-                  </button>
-                  <button
-                    onClick={handleMessageClick}
-                    className="p-1 border-black hover:underline cursor-pointer"
-                  >
-                    Message
-                  </button>
-                </>
-              )}
-              <button
-                onClick={handleProfileClick}
-                className="p-1 border-black hover:underline cursor-pointer"
-              >
-                Profile
-              </button>
-            </div>
-          )}
-
-          <div className="name text-md font-bold font-mono">
-            {" • " + author.firstName + " " + author.lastName}
-          </div>
-
-          <div className="timeStamp text-md font-bold font-mono">
-            {" • " +
-              new Date(timestamp).toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-              })}
-          </div>
-        </div>
-
-        <div className="flex flex-col">
-          {image && (
-            <div className="relative w-full h-[300px] bg-neutral-800shadow-sm overflow-hidden">
-              <Image
-                src={image}
-                alt="Post Image"
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-          )}
-
-          <div className="p-2 px-4">
-            <p
-              className={`text-base sm:text-lg text-neutral-300 leading-relaxed font-medium whitespace-pre-line transition-all ${
-                isExpanded ? "max-h-full" : "max-h-[3rem] overflow-hidden"
-              }`}
-            >
-              {description}
-            </p>
-            {description?.length > 100 && (
-              <button
-                onClick={toggleExpand}
-                className="text-blue-500 mt-1 hover:underline text-sm cursor-pointer"
-              >
-                {isExpanded ? "Read less" : "Read more"}
-              </button>
+        {profileToggle && (
+          <div
+            ref={profileRef}
+            className="bg-yellow-300 flex flex-col p-2 absolute top-12 left-8 rounded-2xl text-sm font-bold border w-[7rem] z-50"
+          >
+            {session?.user?.id !== author._id && (
+              <>
+                <button
+                  onClick={() => handleFollow(author._id)}
+                  ref={followRef}
+                  className="p-1 border-b border-black hover:underline cursor-pointer bg-black text-white rounded-2xl"
+                >
+                  {isFollowing ? "Unfollow" : "Follow"}
+                </button>
+                <button
+                  onClick={handleMessageClick}
+                  className="p-1 border-black hover:underline cursor-pointer"
+                >
+                  Message
+                </button>
+              </>
             )}
+            <button
+              onClick={handleProfileClick}
+              className="p-1 border-black hover:underline cursor-pointer"
+            >
+              Profile
+            </button>
           </div>
+        )}
+
+        <div className="name text-md font-bold font-mono">
+          {" • " + author.firstName + " " + author.lastName}
         </div>
 
-        <div className="flex flex-col postCounts p-2 bg-yellow-300 rounded-b-md ">
-          <div className="flex">
-            <div
-              onClick={handleThumbsUp}
-              className="p-1 hover:bg-yellow-500 rounded-md cursor-pointer"
-            >
-              <Image
-                src={`/${imageState}`}
-                width={25}
-                height={25}
-                alt="like_post"
-                className="rounded"
-              />
-            </div>
+        <div className="timeStamp text-md font-bold font-mono">
+          {" • " +
+            new Date(timestamp).toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+            })}
+        </div>
+      </div>
 
-            <div className="p-1 hover:bg-yellow-500 rounded-md">
-              <Image
-                src={"/comments.svg"}
-                width={25}
-                height={25}
-                alt="comment"
-                className="rounded-full cursor-pointer"
-              />
-            </div>
+      <div className="flex flex-col">
+        {image && (
+          <div className="relative w-full h-[300px] bg-neutral-800shadow-sm overflow-hidden">
+            <Image
+              src={image}
+              alt="Post Image"
+              fill
+              className="object-cover"
+              priority
+            />
           </div>
+        )}
 
-          {likeCount > 0 && (
-            <div className="likesCount text-black font-black px-3">
-              {likeCount}
-            </div>
-          )}
-
-          {pathname === "/profile" && (
-            <div className="flex justify-end items-center p-1 gap-2">
-              <button
-                className="bg-black p-2 rounded-md cursor-pointer hover:scale-110 transition-all duration-200 ease-out"
-                onClick={(e) => editPost(e)}
-              >
-                Edit
-              </button>
-              <button
-                className="bg-black p-2 rounded-md cursor-pointer hover:scale-110 transition-all duration-200 ease-out"
-                onClick={(e) => deletePost(e)}
-              >
-                Delete
-              </button>
-            </div>
+        <div className="p-2 px-4">
+          <p
+            className={`text-base sm:text-lg text-neutral-300 leading-relaxed font-medium whitespace-pre-line transition-all ${
+              isExpanded ? "max-h-full" : "max-h-[3rem] overflow-hidden"
+            }`}
+          >
+            {description}
+          </p>
+          {description?.length > 100 && (
+            <button
+              onClick={toggleExpand}
+              className="text-blue-500 mt-1 hover:underline text-sm cursor-pointer"
+            >
+              {isExpanded ? "Read less" : "Read more"}
+            </button>
           )}
         </div>
       </div>
-    )
+
+      <div className="flex flex-col postCounts bg-yellow-300 rounded-b-md">
+        <div className="flex px-2 mt-1">
+          <div
+            onClick={handleThumbsUp}
+            className="p-1 hover:bg-yellow-500 rounded-md cursor-pointer"
+          >
+            <Image
+              src={`/${imageState}`}
+              width={28}
+              height={28}
+              alt="like_post"
+              className="rounded"
+            />
+          </div>
+
+          <div
+            onClick={() => {
+              setCommentBox((prev) => !prev);
+            }}
+            className="p-1 hover:bg-yellow-500 rounded-md cursor-pointer"
+          >
+            <Image
+              src={"/comments.svg"}
+              width={28}
+              height={28}
+              alt="comment"
+              className="rounded-full"
+            />
+          </div>
+        </div>
+
+        {likeCount > 0 && (
+          <div className="likesCount text-black font-black px-5 pb-1">
+            {likeCount}
+          </div>
+        )}
+
+        {commentBox && (
+          <div className="bg-black p-2 w-full mt-1 flex flex-col gap-1">
+            <div className="flex gap-2 w-full">
+              <div className="photo">
+                <Image
+                  src={session.user.image}
+                  priority
+                  width={40}
+                  height={40}
+                  alt="profile_image"
+                  className="rounded-full"
+                />
+              </div>
+              <div className="commentBox w-full bg-gray-700 h-[8rem] rounded-2xl">
+                <label htmlFor="Comment Here"></label>
+                <textarea
+                  type="text"
+                  placeholder="Comment Here"
+                  className="w-full outline-none p-2 px-4 h-[8rem] rounded-2xl"
+                  onChange={(e) => setComment(e.target.value)}
+                  value={comment}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="buttons flex justify-end p-2 gap-2">
+              <button
+                onClick={() => setCommentBox(false)}
+                className="bg-yellow-300 p-1 px-2 rounded-2xl text-black cursor-pointer font-bold hover:scale-105"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleComment}
+                className="bg-yellow-300 p-1 px-2 rounded-2xl text-black cursor-pointer font-bold hover:scale-105"
+              >
+                Comment
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="w-full">
+          {comments.map((oneComment) => {
+            <div className="w-full">
+              <CommentCard
+                userId={oneComment.id}
+                commentText={oneComment.wrote}
+                when={oneComment.createdAt}
+              />
+            </div>;
+          })}
+        </div>
+
+        {pathname === "/profile" && (
+          <div className="flex justify-end items-center p-1 gap-2">
+            <button
+              className="bg-black p-2 rounded-md cursor-pointer hover:scale-110 transition-all duration-200 ease-out"
+              onClick={(e) => editPost(e)}
+            >
+              Edit
+            </button>
+            <button
+              className="bg-black p-2 rounded-md cursor-pointer hover:scale-110 transition-all duration-200 ease-out"
+              onClick={(e) => deletePost(e)}
+            >
+              Delete
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

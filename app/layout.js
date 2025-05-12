@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Provider from "@/components/Provider";
 import { FollowProvider } from "./context/FollowContext";
+import { Toaster } from 'react-hot-toast';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +35,7 @@ export default function RootLayout({ children }) {
       >
         <Provider>
           <FollowProvider>
+          <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
             <Navbar />
             {children}
           </FollowProvider>

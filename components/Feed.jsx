@@ -15,6 +15,7 @@ const Feed = ({feedPosts, likedPosts}) => {
               id={post._id}
               likes={post.likes}
               liked = {likedPosts}
+              comments = {post.comments}
             />
           </div>
         );
