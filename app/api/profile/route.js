@@ -9,17 +9,19 @@ export async function GET(req) {
   try {
     await connectToDB();
     const userExists = await User.findOne({ _id: id }).populate('posts', '_id description image timestamp likes');
-    const userPosts = await Post.find({author : id}).populate('author','firstName lastName image');
+    const userPosts = await Post.find({author : id}).populate('author','firstName lastName image')
+    .populate('comments._id','firstName lastName image');
 
     if (userExists && userPosts) {
-      const { firstName, lastName, email, image, posts } = userExists;
+      const { firstName, lastName, email, image, likedPosts } = userExists;
+
       let allDate = [];
       userPosts.forEach((onePost)=>{
         allDate.push(onePost._id.getTimestamp());
       });
       
       const joinedDate = userExists._id.getTimestamp();
-      const cleanUser = { firstName, lastName, email, image, posts, userPosts, allDate, joined: joinedDate.toISOString()};
+      const cleanUser = { firstName, lastName, email, image, userPosts, allDate, likedPosts, joined: joinedDate.toISOString()};
       return new Response(JSON.stringify(cleanUser), { status: 200,
         headers : {"Content-Type" : "application/json"}
        });

@@ -39,6 +39,7 @@ const PostCard = ({
   // ✅ Like state
   const [isLiked, setIsLiked] = useState(false);
   const [imageState, setImageState] = useState("like.svg");
+
   const [likeCount, setLikeCount] = useState(likes);
 
   // ✅ Expand state
@@ -48,9 +49,13 @@ const PostCard = ({
     if (liked?.includes(id)) {
       setIsLiked(true);
       setImageState("unlike.svg");
+      console.log("Liked Post")
     } else {
       setIsLiked(false);
       setImageState("like.svg");
+      console.log("Not a Liked Post")
+      console.log(id)
+      console.log(liked)
     }
   }, [liked, id]);
 
@@ -140,9 +145,10 @@ const PostCard = ({
       if (postComment.status === 200) {
         const newComment = {
           _id: crypto.randomUUID(), // you can remove this if backend returns _id
-          id: {image : session.user.image,
-            firstName : session.user.name.split(" ")[0],
-            lastName : session.user.name.split(" ")[1]
+          id: {
+            image: session.user.image,
+            firstName: session.user.name.split(" ")[0],
+            lastName: session.user.name.split(" ")[1],
           },
           wrote: comment,
           createdAt: new Date().toISOString(),
@@ -328,11 +334,19 @@ const PostCard = ({
           </div>
         </div>
 
-        {likeCount > 0 && (
-          <div className="likesCount text-black font-black px-5 pb-1">
-            {likeCount}
-          </div>
-        )}
+        <div className="flex gap-2">
+          {likeCount > 0 && (
+            <div className="likesCount text-black font-black px-5 pb-1">
+              {likeCount}
+            </div>
+          )}
+
+          {/* {comments.length > 0 && (
+            <div className="likesCount text-black font-black pb-1">
+              {comments.length}
+            </div>
+          )} */}
+        </div>
 
         {commentBox && (
           <div className="bg-black p-2 w-full mt-1 flex flex-col gap-1 ">

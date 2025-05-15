@@ -85,30 +85,45 @@ const ProfilePage = () => {
               </strong>
             </div>
           </div>
-          {profileData.posts.length > 0 && (
+          {profileData.userPosts.length > 0 && (
             <div className="w-full border border-black rounded-2xl bg-black p-2 px-4">
               <div>
                 <p className="p-1 text-2xl font-bold">Posts</p>
               </div>
               <div className="flex gap-3 justify-start flex-nowrap overflow-x-scroll mt-2 hide-scrollbar">
-                {profileData.posts.map((post, index) => {
+                {profileData.userPosts.map((post, index) => {
                   return (
                     <div key={post._id} className="w-[21.82rem]">
                       <PostCard
-                        title={post.title}
                         description={post.description}
                         image={post.image || null}
-                        author={profileData?.userPosts[index]?.author}
+                        author={post.author}
                         timestamp={profileData.allDate[index]}
                         id={post._id}
                         likes={post.likes}
+                        liked={profileData.likedPosts}
                         onDelete={() => {
                           setProfileData((prev) => {
                             return {
                               ...prev,
-                              posts : prev.posts.filter((p) => p._id !== post._id),
-                            }
+                              userPosts: prev.userPosts.filter(
+                                (p) => p._id !== post._id
+                              ),
+                            };
                           });
+                        }}
+                        comments={post.comments}
+                        onAddComment={(postId, newComment) => {
+                          setProfileData((prev) =>
+                            prev.userPosts.map((post) =>
+                              post._id === postId
+                                ? {
+                                    ...post,
+                                    comments: [...post.comments, newComment],
+                                  }
+                                : post
+                            )
+                          );
                         }}
                       />
                     </div>
