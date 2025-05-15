@@ -144,7 +144,7 @@ const PostCard = ({
 
       if (postComment.status === 200) {
         const newComment = {
-          _id: crypto.randomUUID(), // you can remove this if backend returns _id
+          _id: crypto.randomUUID(),
           id: {
             image: session.user.image,
             firstName: session.user.name.split(" ")[0],
@@ -278,7 +278,7 @@ const PostCard = ({
               src={image}
               alt="Post Image"
               fill
-              className="object-cover"
+              className="object-contain"
               priority
             />
           </div>
@@ -341,11 +341,11 @@ const PostCard = ({
             </div>
           )}
 
-          {/* {comments.length > 0 && (
+          {comments?.length > 0 && (
             <div className="likesCount text-black font-black pb-1">
-              {comments.length}
+              {comments?.length}
             </div>
-          )} */}
+          )}
         </div>
 
         {commentBox && (
@@ -391,7 +391,7 @@ const PostCard = ({
           </div>
         )}
 
-        {commentBox && comments.length > 0 && (
+        {commentBox && comments?.length > 0 && (
           <div className="w-full p-2  bg-black">
             <div className="commentTitle font-bold text-xl px-1">Comments</div>
 

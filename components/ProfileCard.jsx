@@ -57,15 +57,6 @@ const ProfileCard = ({userID}) => {
             </strong>
           </div>
 
-          {/* <div className="email">
-            <strong>
-              <span className="bg-yellow-300 p-1 px-2 rounded-md text-black">
-                Email
-              </span>
-              <span className="font-mono"> {profileData.email}</span>
-            </strong>
-          </div> */}
-
           <div className="Joined">
             <strong>
               <span className="bg-yellow-300 p-1 px-2 rounded-md text-black">

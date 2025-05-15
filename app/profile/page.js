@@ -85,7 +85,7 @@ const ProfilePage = () => {
               </strong>
             </div>
           </div>
-          {profileData.userPosts.length > 0 && (
+          {profileData?.userPosts?.length > 0 && (
             <div className="w-full border border-black rounded-2xl bg-black p-2 px-4">
               <div>
                 <p className="p-1 text-2xl font-bold">Posts</p>
@@ -114,16 +114,17 @@ const ProfilePage = () => {
                         }}
                         comments={post.comments}
                         onAddComment={(postId, newComment) => {
-                          setProfileData((prev) =>
-                            prev.userPosts.map((post) =>
+                          setProfileData((prev) => ({
+                            ...prev,
+                            userPosts: prev.userPosts.map((post) =>
                               post._id === postId
                                 ? {
                                     ...post,
                                     comments: [...post.comments, newComment],
                                   }
                                 : post
-                            )
-                          );
+                            ),
+                          }));
                         }}
                       />
                     </div>

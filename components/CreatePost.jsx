@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 
-const CreatePost = () => {
+const CreatePost = ({}) => {
   const [desc, setDesc] = useState("");
   const [image, setImage] = useState();
   const [imageState, setImageState] = useState();

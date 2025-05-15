@@ -10,7 +10,7 @@ export async function GET(req) {
     await connectToDB();
     const userExists = await User.findOne({ _id: id }).populate('posts', '_id description image timestamp likes');
     const userPosts = await Post.find({author : id}).populate('author','firstName lastName image')
-    .populate('comments._id','firstName lastName image');
+    .populate('comments.id','firstName lastName image');
 
     if (userExists && userPosts) {
       const { firstName, lastName, email, image, likedPosts } = userExists;
