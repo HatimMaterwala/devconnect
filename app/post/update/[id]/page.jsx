@@ -5,6 +5,7 @@ export default async function UpdatePost ({params}) {
   const {postId} = await params;
   return (
     <div>
+      // Back to work baby
         <CreatePost pId={postId}/>
     </div>
   )
