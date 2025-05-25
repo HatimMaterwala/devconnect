@@ -164,7 +164,10 @@ const PostCard = ({
     }
   };
 
-  const editPost = async () => {};
+  const editPost = async (e) => {
+    e.preventDefault();
+    Router.push(`/post/update/${id}`)
+  };
 
   const deletePost = async (e) => {
     e.currentTarget.disabled = true;

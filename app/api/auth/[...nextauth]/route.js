@@ -1,3 +1,5 @@
+// app/api/auth/[...nextauth]/route.js OR route.ts
+
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -5,7 +7,7 @@ import User from "@/models/User";
 import { connectToDB } from "@/utils/database";
 import bcrypt from "bcrypt";
 
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -18,16 +20,11 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        console.log("Login Attempt : ", credentials)
         await connectToDB();
         const user = await User.findOne({ email: credentials.email });
-        if (!user || !user.password) {
-          console.log('User not found or missing Password!!');
-          return null;
-        }
+        if (!user || !user.password) return null;
 
         const isValid = await bcrypt.compare(credentials.password, user.password);
-        console.log("Password Match: ", isValid);
         if (!isValid) return null;
 
         return {
@@ -41,15 +38,11 @@ const handler = NextAuth({
   ],
   callbacks: {
     async session({ session }) {
-      try {
-        await connectToDB();
-        const userSession = await User.findOne({ email: session.user.email });
-        if (userSession) {
-          session.user.id = userSession._id.toString();
-          session.user.name = `${userSession.firstName || ""} ${userSession.lastName || ""}`;
-        }
-      } catch (e) {
-        console.log("Session Error:", e);
+      await connectToDB();
+      const userSession = await User.findOne({ email: session.user.email });
+      if (userSession) {
+        session.user.id = userSession._id.toString();
+        session.user.name = `${userSession.firstName || ""} ${userSession.lastName || ""}`;
       }
       return session;
     },
@@ -58,18 +51,14 @@ const handler = NextAuth({
         await connectToDB();
         const userExists = await User.findOne({ email: profile.email });
         if (!userExists) {
-          const newUser = new User({
+          await new User({
             email: profile.email,
             image: profile.picture,
             firstName: profile.given_name || "Dev",
             lastName: profile.family_name || "User",
             password: "oauth",
             joined: new Date()
-          });
-        
-          const savedUser = await newUser.save();
-          console.log("✅ New user created with timestamps:", savedUser.joined);
-
+          }).save();
         }
         return true;
       } catch (e) {
@@ -79,6 +68,8 @@ const handler = NextAuth({
     }
   },
   secret: process.env.NEXTAUTH_SECRET
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

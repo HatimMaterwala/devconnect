@@ -6,21 +6,21 @@ import { useState } from "react";
 import FollowersCard from "@/components/FollowersCard";
 
 const Allies = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [allAllies, setAllAllies] = useState([]);
-  const fetchFollowers = async () => {
+
+  const fetchFollowing = async () => {
     try {
       if (session && session.user && session.user.id) {
-        const allFollowers = await fetch(
-          `/api/followers?id=${session?.user?.id}`,
+        const allFollowing = await fetch(
+          `/api/following?id=${session?.user?.id}`,
           {
             method: "GET",
           }
         );
 
-        const fetchedFollowers = await allFollowers.json();
-        console.log(fetchedFollowers);
-        setAllAllies(fetchedFollowers);
+        const fetchedFollowing = await allFollowing.json();
+        setAllAllies(fetchedFollowing);
       }
     } catch (e) {
       console.log("Fetch Error : " + e.message);
@@ -28,13 +28,16 @@ const Allies = () => {
   };
 
   useEffect(() => {
-    fetchFollowers();
+    if(status === "authenticated"){
+      fetchFollowing();
+    }
   }, [session]);
+
   return (
     <div className="mt-[4rem] flex justify-center items-center w-full flex-col gap-5 px-4">
       <div className="title mt-[2vh] text-2xl font-bold rounded-md">
         <strong className="text-yellow-300 text-4xl text-shadow-md text-shadow-black">
-          Allies
+          Allies 
         </strong>
       </div>
       <div className="w-full flex gap-2 flex-wrap">
@@ -45,6 +48,13 @@ const Allies = () => {
             lastName={allies.lastName}
             image={allies.image}
             id={allies._id}
+            deleteAllies={(allyId)=>{
+              setAllAllies((prev)=>
+                prev.filter((ally)=>
+                  ally._id !== allyId 
+                )
+              )
+            }}
           />
         ))}
       </div>

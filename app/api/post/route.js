@@ -1,6 +1,8 @@
 import { connectToDB } from "@/utils/database";
 import Post from "@/models/Post";
 import User from "@/models/User";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/route";
 
 export async function POST(req) {
   const { desc, id, imageUrl } = await req.json();
@@ -62,7 +64,7 @@ export async function GET(req) {
     const allPosts = await Post.find({})
       .sort({ _id: -1 })
       .populate("author", "firstName lastName image bio followers")
-      .populate("comments.id","image firstName lastName");
+      .populate("comments.id", "image firstName lastName");
     allPosts.forEach((post) => {
       let plainpost = post.toObject();
       plainpost.timestamp = post._id.getTimestamp();
@@ -108,4 +110,46 @@ export async function DELETE(req) {
   }
 
   return new Response(JSON.stringify("Id not found"), { status: 404 });
+}
+
+export async function PUT(req) {
+  try {
+    // Check for session
+    const session = await getServerSession(authOptions);
+    console.log(session)
+    if (!session?.user?.id) {
+      return new Response(JSON.stringify(`Unauthorized`), { status: 401 });
+    }
+
+    // Check For Defined Input
+    const { id, gotDescription, gotImage } = await req.json();
+    if (
+      !id ||
+      typeof gotDescription !== "string" ||
+      typeof gotImage !== "string"
+    ) {
+      return new Response(JSON.stringify("Invalid input"), { status: 400 });
+    }
+
+    await connectToDB();
+    const post = await Post.findById(id);
+    if (!post) {
+      return new Response(JSON.stringify("Post Not Found !!"), { status: 404 });
+    }
+    if (post.author.toString() !== session.user.id) {
+      return new Response("Forbidden: Not your post", { status: 403 });
+    }
+    (post.description = gotDescription),
+      (post.image = gotImage),
+      await post.save();
+    return new Response(JSON.stringify("Post Updated Successfully!!"), {
+      status: 200,
+    });
+
+  } catch (e) {
+    console.log(e);
+    return new Response(JSON.stringify("DB Error | Server Error"), {
+      status: 500,
+    });
+  }
 }

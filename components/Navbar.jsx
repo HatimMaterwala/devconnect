@@ -85,12 +85,6 @@ const Navbar = () => {
               >
                 Profile
               </Link>
-              <Link
-                href={"/profile"}
-                className="p-1 border-b border-black hover:underline"
-              >
-                Settings & Privacy
-              </Link>
               <div
                 onClick={() => signOut()}
                 className="p-1 cursor-pointer hover:underline"
