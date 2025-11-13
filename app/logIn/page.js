@@ -11,7 +11,7 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
-  const [providers, setProviders] = useState([]);
+  const [, setProviders] = useState([]);
 
   useEffect(() => {
     const getProvidersList = async () => {

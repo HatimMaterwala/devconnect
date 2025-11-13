@@ -5,7 +5,7 @@ import { signIn, getProviders, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 
-const signUp = () => {
+const SignUp = () => {
   const Router = useRouter();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -168,4 +168,4 @@ const signUp = () => {
   );
 };
 
-export default signUp;
+export default SignUp;

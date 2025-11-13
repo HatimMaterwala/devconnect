@@ -23,6 +23,12 @@ export default function Home() {
     }
   };
 
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetchData();
+    }
+  }, [status, session?.user?.id]);
+
   if (!session) {
     return (
       <>
@@ -104,12 +110,6 @@ export default function Home() {
       </>
     );
   }
-
-  useEffect(() => {
-    if (status === "authenticated") {
-      fetchData();
-    }
-  }, [status, session?.user?.id]);
 
   return (
     <div className="w-full flex justify-center items-center mt-[5rem]">
