@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 
 const SignUp = () => {
-  const Router = useRouter();
+  const router = useRouter();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -24,7 +24,7 @@ const SignUp = () => {
 
   useEffect(() => {
     if (session) {
-      Router.push("/");
+      router.push("/");
     }
   }, [session]);
 
