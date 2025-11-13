@@ -4,12 +4,13 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import PostCard from "@/components/PostCard";
+import { useRouter } from "next/navigation";
 
 const ProfilePage = () => {
   const { data: session, status } = useSession();
   const [profileData, setProfileData] = useState();
   const [loader, setLoader] = useState(false);
-
+  const router = useRouter();
   const fetchUser = async () => {
     setLoader(true);
     try {
@@ -28,6 +29,8 @@ const ProfilePage = () => {
   useEffect(() => {
     if (status === "authenticated") {
       fetchUser();
+    } else{
+      router.push("/");
     }
   }, [status]);
 

@@ -54,12 +54,12 @@ const Navbar = () => {
         </div>
       ) : (
         <div className="credentials flex gap-2">
-          <Link className="cursor-pointer" href={"/signUp"}>
+          <Link className="cursor-pointer" href={"/signup"}>
             <button className="cursor-pointer bg-yellow-300 p-1 px-3 rounded-full text-black">
               <strong>Sign Up</strong>
             </button>
           </Link>
-          <Link className="cursor-pointer" href={"/logIn"}>
+          <Link className="cursor-pointer" href={"/login"}>
             <button className="cursor-pointer bg-yellow-300 p-1 px-3 rounded-full text-black">
               <strong>Log In</strong>
             </button>

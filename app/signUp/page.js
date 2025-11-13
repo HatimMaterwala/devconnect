@@ -73,7 +73,7 @@ const SignUp = () => {
   return (
     <div className="fullBody w-full h-[89vh] flex flex-col gap-2 justify-center items-center mt-[11vh]">
       <h1 className="text-2xl font-bold">
-        <strong className="text-red-600"> JOIN </strong>the Best Dev's Community
+        <strong className="text-red-600"> JOIN </strong>the Best Dev&apos;s Community
       </h1>
       <div className="box bg-black w-1/3 p-6 rounded-lg text-white font-bold">
         <form action="submit" className="flex w-full flex-col gap-2">
