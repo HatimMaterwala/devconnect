@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 
 const Login = () => {
-  const Router = useRouter();
+  const router = useRouter();
   const { data: session } = useSession();
 
   const [email, setEmail] = useState("");
@@ -23,7 +23,7 @@ const Login = () => {
 
   useEffect(() => {
     if (session) {
-      Router.push("/");
+      router.push("/");
     }
   }, [session]);
 
