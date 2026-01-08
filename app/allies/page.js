@@ -1,19 +1,20 @@
 "use client";
 import { useEffect } from "react";
 import React from "react";
-import { useSession } from "next-auth/react";
 import { useState } from "react";
 import FollowersCard from "@/components/FollowersCard";
+import { useAuth } from "../context/AuthContext";
 
 const Allies = () => {
-  const { data: session, status } = useSession();
+  const { user } = useAuth();
   const [allAllies, setAllAllies] = useState([]);
 
   const fetchFollowing = async () => {
+    if(!user) return; 
     try {
-      if (session && session.user && session.user.id) {
+      if (user) {
         const allFollowing = await fetch(
-          `/api/following?id=${session?.user?.id}`,
+          `/api/following?id=${user?.id}`,
           {
             method: "GET",
           }
@@ -28,10 +29,9 @@ const Allies = () => {
   };
 
   useEffect(() => {
-    if(status === "authenticated"){
+    if(!user) return
       fetchFollowing();
-    }
-  }, [session]);
+  }, [user]);
 
   return (
     <div className="mt-[4rem] flex justify-center items-center w-full flex-col gap-5 px-4">

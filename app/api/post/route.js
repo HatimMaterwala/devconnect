@@ -1,8 +1,7 @@
 import { connectToDB } from "@/utils/database";
 import Post from "@/models/Post";
 import User from "@/models/User";
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { useAuth } from "@/app/context/AuthContext";
 
 export async function POST(req) {
   const { desc, id, imageUrl } = await req.json();
@@ -47,6 +46,7 @@ export async function POST(req) {
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("id");
+  console.log(userId);
 
   try {
     await connectToDB();
@@ -114,10 +114,9 @@ export async function DELETE(req) {
 
 export async function PUT(req) {
   try {
-    // Check for session
-    const session = await getServerSession(authOptions);
-    console.log(session)
-    if (!session?.user?.id) {
+    const { user } = useAuth();
+
+    if (user.id) {
       return new Response(JSON.stringify(`Unauthorized`), { status: 401 });
     }
 
@@ -136,7 +135,7 @@ export async function PUT(req) {
     if (!post) {
       return new Response(JSON.stringify("Post Not Found !!"), { status: 404 });
     }
-    if (post.author.toString() !== session.user.id) {
+    if (post.author.toString() !== user.id) {
       return new Response("Forbidden: Not your post", { status: 403 });
     }
     (post.description = gotDescription),

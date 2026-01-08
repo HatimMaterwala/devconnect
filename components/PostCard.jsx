@@ -1,12 +1,12 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useFollow } from "@/app/context/FollowContext";
 import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 import CommentCard from "./CommentCard";
+import { useAuth } from "@/app/context/AuthContext";
 
 const PostCard = ({
   description,
@@ -28,13 +28,13 @@ const PostCard = ({
 
   const profileRef = useRef(null);
   const followRef = useRef();
-  const { data: session } = useSession();
+  const { user } = useAuth();
   const Router = useRouter();
   const pathname = usePathname();
 
   const { following, toggleFollow } = useFollow();
   const isFollowing =
-    following[author._id] ?? author?.followers?.includes(session?.user?.id);
+    following[author._id] ?? author?.followers?.includes(user?.id);
 
   // ✅ Like state
   const [isLiked, setIsLiked] = useState(false);
@@ -73,7 +73,7 @@ const PostCard = ({
   };
 
   const handleFollow = async (id) => {
-    if (!session) return;
+    if (!user) return;
     followRef.current.disabled = true;
 
     const prevState = isFollowing;
@@ -81,7 +81,7 @@ const PostCard = ({
 
     try {
       const res = await fetch(
-        `/api/follow?from=${session.user.id}&to=${id}&request=${prevState ? "Unfollow" : "Follow"}`,
+        `/api/follow?from=${user.id}&to=${id}&request=${prevState ? "Unfollow" : "Follow"}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -101,11 +101,11 @@ const PostCard = ({
   };
 
   const handleThumbsUp = async () => {
-    if (!session) return;
+    if (!user) return;
 
     try {
       const likePost = await fetch(
-        `/api/like?id=${id}&user=${session?.user?.id}&request=${isLiked ? "unlike.svg" : "like.svg"}`,
+        `/api/like?id=${id}&user=${user?.id}&request=${isLiked ? "unlike.svg" : "like.svg"}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -132,7 +132,7 @@ const PostCard = ({
 
     try {
       const postComment = await fetch(
-        `/api/comment?userid=${session.user.id}&postid=${id}`,
+        `/api/comment?userid=${user.id}&postid=${id}`,
         {
           method: "POST",
           headers: {
@@ -146,13 +146,14 @@ const PostCard = ({
         const newComment = {
           _id: crypto.randomUUID(),
           id: {
-            image: session.user.image,
-            firstName: session.user.name.split(" ")[0],
-            lastName: session.user.name.split(" ")[1],
+            image: user.image,
+            firstName: user.firstName,
+            lastName: user.lastName,
           },
           wrote: comment,
           createdAt: new Date().toISOString(),
         };
+
         onAddComment?.(id, newComment);
         setComment("");
         toast.success("Thanks For Commenting !!");
@@ -235,7 +236,7 @@ const PostCard = ({
             ref={profileRef}
             className="bg-yellow-300 flex flex-col p-2 absolute top-12 left-8 rounded-2xl text-sm font-bold border w-[7rem] z-50"
           >
-            {session?.user?.id !== author._id && (
+            {user?.id !== author._id && (
               <>
                 <button
                   onClick={() => handleFollow(author._id)}
@@ -356,7 +357,7 @@ const PostCard = ({
             <div className="flex gap-2 w-full">
               <div className="photo">
                 <Image
-                  src={session.user.image}
+                  src={user.image}
                   priority
                   width={40}
                   height={40}

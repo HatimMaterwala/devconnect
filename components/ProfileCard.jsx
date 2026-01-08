@@ -1,17 +1,17 @@
 "use client";
-import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useAuth } from "@/app/context/AuthContext";
 
 const ProfileCard = ({userID}) => {
-  const { data: session, status } = useSession();
+  const { user } = useAuth();
   const [profileData, setProfileData] = useState(null);
   const [loader, setLoader] = useState(false);
 
   const fetchUser = async () => {
     setLoader(true);
     try {
-      if (session) {
+      if (user) {
         const profileUser = await fetch(`/api/profile?id=${userID}`);
         const res = await profileUser.json();
         setProfileData(res);
@@ -24,10 +24,8 @@ const ProfileCard = ({userID}) => {
   };
 
   useEffect(() => {
-    if(status === "authenticated"){
-      fetchUser();
-    }
-  }, [status]);
+    fetchUser()
+  }, [user]);
 
   return (
     <div className="profile w-full flex justify-center items-center mt-[13vh]">

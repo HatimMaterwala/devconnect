@@ -1,9 +1,10 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import Provider from "@/components/Provider";
 import { FollowProvider } from "./context/FollowContext";
-import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from "./context/AuthContext";
+import { Toaster } from "react-hot-toast";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,13 +34,16 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Provider>
-          <FollowProvider>
-          <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
-            <Navbar />
-            {children}
-          </FollowProvider>
-        </Provider>
+        <GoogleOAuthProvider clientId={`${process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}`}>
+          <AuthProvider>
+            <FollowProvider>
+              <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+              <Navbar />
+              {children}
+            </FollowProvider>
+          </AuthProvider>
+        </GoogleOAuthProvider>
+        ;
       </body>
     </html>
   );

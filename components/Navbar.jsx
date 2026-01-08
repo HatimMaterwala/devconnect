@@ -1,13 +1,16 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { signOut, useSession } from "next-auth/react";
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "@/app/context/AuthContext";
+import { useRouter } from "next/navigation";
+
 
 const Navbar = () => {
-  const { data: session } = useSession();
+  const { user, setUser } = useAuth();
   const [profileMenu, setProfileMenu] = useState(false);
   const posiMenuRef = useRef(null);
+  const router = useRouter();
 
   const handleToggle = () => {
     setProfileMenu((prev) => !prev);
@@ -38,7 +41,7 @@ const Navbar = () => {
         </Link>
       </div>
 
-      {session ? (
+      {user ? (
         <div className="otherFields flex justify-center items-center gap-7">
           <Link href={"/"} className="cursor-pointer text-yellow-300">
             <span className="material-symbols-outlined scale-110">home</span>
@@ -67,10 +70,10 @@ const Navbar = () => {
         </div>
       )}
 
-      {session && (
+      {user && (
         <div className="relative" ref={posiMenuRef}>
           <Image
-            src={session.user.image || "/profile.webp"}
+            src={user.image || "/profile.webp"}
             width={40}
             height={40}
             alt="profile_image"
@@ -86,7 +89,14 @@ const Navbar = () => {
                 Profile
               </Link>
               <div
-                onClick={() => signOut()}
+                onClick={async () => {
+                  await fetch("/api/auth/logout",{
+                    method : "POST",
+                    credentials : "include"
+                  })
+                  setUser(null);
+                  router.replace("/login");
+                }}
                 className="p-1 cursor-pointer hover:underline"
               >
                 Log Out

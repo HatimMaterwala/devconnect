@@ -1,35 +1,42 @@
 "use client";
 import Feed from "@/components/Feed";
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useAuth } from "./context/AuthContext";
+import CircularIndeterminate from "@/components/Loading";
+import { toast } from "react-toastify";
 
 export default function Home() {
-  const { data: session, status } = useSession();
-
+  const { user, loading } = useAuth();
   const [getPosts, setGetPosts] = useState([]);
   const [likedP, setLikedP] = useState([]);
 
-  const fetchData = async () => {
-    const allPosts = await fetch(`/api/post?id=${session?.user?.id}`, {
-      method: "GET",
-    });
-
-    const resPosts = await allPosts.json();
-
-    if (resPosts) {
-      const { posts, liked } = resPosts;
-      setGetPosts(posts);
-      setLikedP(liked);
+  const fetchData = async () => { 
+    try{
+      const allPosts = await fetch(`/api/post?id=${user.id}`);
+      const resPosts = await allPosts.json();
+  
+      if (resPosts) {
+        const { posts, liked } = resPosts;
+        setGetPosts(posts);
+        setLikedP(liked); 
+      }
+    }catch(err){
+      toast.error("Failed to fetch Posts")
     }
   };
 
   useEffect(() => {
-    if (status === "authenticated") {
-      fetchData();
-    }
-  }, [status, session?.user?.id]);
+    if(!user?.id){
+      setGetPosts([]);
+      setLikedP([]);
+      return;
+    } 
+    fetchData()
+  }, [user?.id]);
 
-  if (!session) {
+  if(loading) return <CircularIndeterminate/> ;
+
+  if (!user) {
     return (
       <>
         <div className="bg-black text-yellow-400 pt-24 min-h-screen flex flex-col">
@@ -50,7 +57,7 @@ export default function Home() {
                 Get Started
               </a>
               <a
-                href="/logIn"
+                href="/login"
                 className="border-2 border-yellow-400 px-8 py-3 rounded-full text-lg font-semibold hover:bg-yellow-400 hover:text-black transition"
               >
                 Login

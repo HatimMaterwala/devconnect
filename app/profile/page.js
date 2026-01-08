@@ -1,21 +1,22 @@
 "use client";
 import React from "react";
-import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import PostCard from "@/components/PostCard";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../context/AuthContext";
 
 const ProfilePage = () => {
-  const { data: session, status } = useSession();
+  const { user } = useAuth();
   const [profileData, setProfileData] = useState();
   const [loader, setLoader] = useState(false);
-  const router = useRouter();
+  // const router = useRouter();
   const fetchUser = async () => {
+    if(!user) return;
     setLoader(true);
     try {
-      if (session) {
-        const profileUser = await fetch(`/api/profile?id=${session.user.id}`);
+      if (user) {
+        const profileUser = await fetch(`/api/profile?id=${user?.id}`);
         const res = await profileUser.json();
         console.log(res);
         setProfileData(res);
@@ -27,12 +28,9 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if(!user) return;
       fetchUser();
-    } else{
-      router.push("/");
-    }
-  }, [status]);
+    },[user]);
 
   return (
     <div className="profile w-full flex justify-center items-center mt-[4rem]">

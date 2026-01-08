@@ -2,23 +2,23 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
+import { useAuth } from "@/app/context/AuthContext";
 
 const FollowersCard = ({ firstName, lastName, image, id, deleteAllies }) => {
   const Router = useRouter();
-  const { data: session } = useSession();
-  const user = session.user.id;
+  const { user } = useAuth();
+
   const handleFollowers = async () => {
     Router.push(`/user/${id}`);
-  };
+  };  
 
   const handleRemove = async (e) => {
     e.preventDefault();
 
     try {
       const deleteFollower = await fetch(
-        `/api/following?userid=${user}&deleteid=${id}`,
+        `/api/following?userid=${user.id}&deleteid=${id}`,
         {
           method: "DELETE",
           headers: {

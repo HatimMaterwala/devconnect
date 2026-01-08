@@ -1,50 +1,39 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import { signIn, getProviders, useSession } from "next-auth/react";
+import React, { useState } from "react";
+import { GoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const router = useRouter();
-  const { data: session } = useSession();
-
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
-  const [, setProviders] = useState([]);
-
-  useEffect(() => {
-    const getProvidersList = async () => {
-      const providersList = await getProviders();
-      setProviders(providersList);
-    };
-    getProvidersList();
-  }, []);
-
-  useEffect(() => {
-    if (session) {
-      router.push("/");
-    }
-  }, [session]);
+  const { setUser, fetchUser } = useAuth();
 
   const handleLogin = async () => {
     try {
-      const res = await signIn("credentials", {
-        redirect: false,
-        email,
-        password: pass,
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password: pass }),
       });
 
-      if (res?.ok) {
+      if (res.ok) {
+        const { user } = await res.json();
+        setUser(user);
         toast.success("Login Successful!");
         setEmail("");
         setPass("");
+        router.push("/");
       } else {
         toast.error("Invalid Credentials!");
       }
     } catch (err) {
-      console.log("Login Error:", err);
-      toast.error("Something went wrong!");
+      toast.error("Something went wrong, please try again later !!");
     }
   };
 
@@ -55,7 +44,13 @@ const Login = () => {
       </h1>
 
       <div className="box bg-black w-1/3 p-6 rounded-lg text-white font-bold">
-        <form className="flex w-full flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
+        <form
+          className="flex w-full flex-col gap-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin();
+          }}
+        >
           <div className="email flex flex-col">
             <label htmlFor="email">E-mail</label>
             <input
@@ -85,7 +80,6 @@ const Login = () => {
           <button
             type="submit"
             className="w-full bg-yellow-400 text-black p-2 rounded-lg font-bold hover:bg-yellow-300 transition"
-            onClick={handleLogin}
           >
             Login
           </button>
@@ -95,20 +89,36 @@ const Login = () => {
       <hr className="w-1/3 mt-4 border border-yellow-400" />
 
       <div className="googlesignIn mt-2 w-1/3 flex justify-center items-center gap-2">
-        <button
-          className="cursor-pointer bg-yellow-400 p-2 rounded-lg hover:bg-yellow-300 transition"
-          onClick={async () => {
-            await signIn("google");
+        <GoogleLogin
+          onSuccess={async (credentialResponse) => {
+            try {
+              const res = await fetch("/api/auth/google", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  token: credentialResponse.credential,
+                }),
+              });
+
+              if (!res.ok) {
+                toast.error("Google login failed");
+                return;
+              }
+
+              await fetchUser(); // hydrate from /auth/me
+              toast.success("Logged in with Google");
+              router.push("/");
+            } catch (err) {
+              toast.error("Something went wrong with Google login");
+            }
           }}
-        >
-          <Image
-            src={"/google.png"}
-            width={30}
-            height={30}
-            alt={"google_image"}
-            className="shadow-sm shadow-amber-700 rounded-full"
-          />
-        </button>
+          onError={() => {
+            toast.error("Google login failed");
+          }}
+        />
       </div>
 
       <ToastContainer />
