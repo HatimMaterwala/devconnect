@@ -114,22 +114,24 @@ export async function DELETE(req) {
 
 export async function PUT(req) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user?.id) {
       return new Response(JSON.stringify(`Unauthorized`), { status: 401 });
     }
 
+    console.log("After the check!!");
+
     // Check For Defined Input
     const { id, gotDescription, gotImage } = await req.json();
 
-    if (
-      !id ||
-      typeof gotDescription !== "string" ||
-      typeof gotImage !== "string"
-    ) {
+    console.log("After the Req")
+
+    if (!id || typeof gotDescription !== "string") {
       return new Response(JSON.stringify("Invalid input"), { status: 400 });
     }
+
+    console.log("After the Check - 2")
 
     await connectToDB();
     const post = await Post.findById(id);
@@ -139,10 +141,11 @@ export async function PUT(req) {
     if (post.author.toString() !== user.id) {
       return new Response("Forbidden: Not your post", { status: 403 });
     }
-    
-    (post.description = gotDescription),
-      (post.image = gotImage),
-      await post.save();
+
+    post.description = gotDescription;
+    post.image = gotImage;
+    await post.save();
+
     return new Response(JSON.stringify("Post Updated Successfully!!"), {
       status: 200,
     });
