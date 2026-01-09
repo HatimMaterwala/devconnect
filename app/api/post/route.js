@@ -4,8 +4,12 @@ import User from "@/models/User";
 import { getUserFromToken } from "@/utils/getUserFromToken";
 
 export async function POST(req) {
-  const { desc, id, imageUrl } = await req.json();
-  console.log(desc, id, imageUrl);
+  const user = await getUserFromToken();
+  const id = user.id;
+
+  const { desc, imageUrl } = await req.json();
+  console.log(desc, imageUrl);
+
   try {
     await connectToDB();
     if (desc && id) {
@@ -88,6 +92,11 @@ export async function GET(req) {
 }
 
 export async function DELETE(req) {
+  const user = await getUserFromToken();
+  if (!user?.id) {
+    return new Response(JSON.stringify("Unauthorized Access"), { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
 
@@ -113,26 +122,17 @@ export async function DELETE(req) {
 }
 
 export async function PUT(req) {
+  const user = await getUserFromToken();
+  if (!user?.id) {
+    return new Response(JSON.stringify(`Unauthorized`), { status: 401 });
+  }
+
+  const { id, gotDescription, gotImage } = await req.json();
+  if (!id || typeof gotDescription !== "string") {
+    return new Response(JSON.stringify("Invalid input"), { status: 400 });
+  }
+
   try {
-    const user = await getUserFromToken();
-
-    if (!user?.id) {
-      return new Response(JSON.stringify(`Unauthorized`), { status: 401 });
-    }
-
-    console.log("After the check!!");
-
-    // Check For Defined Input
-    const { id, gotDescription, gotImage } = await req.json();
-
-    console.log("After the Req")
-
-    if (!id || typeof gotDescription !== "string") {
-      return new Response(JSON.stringify("Invalid input"), { status: 400 });
-    }
-
-    console.log("After the Check - 2")
-
     await connectToDB();
     const post = await Post.findById(id);
     if (!post) {
@@ -149,7 +149,6 @@ export async function PUT(req) {
     return new Response(JSON.stringify("Post Updated Successfully!!"), {
       status: 200,
     });
-
   } catch (e) {
     console.log(e);
     return new Response(JSON.stringify("DB Error | Server Error"), {

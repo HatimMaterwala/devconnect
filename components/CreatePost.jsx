@@ -11,13 +11,9 @@ const CreatePost = ({}) => {
   const [desc, setDesc] = useState("");
   const [image, setImage] = useState();
   const [imageState, setImageState] = useState();
-
-  const { user } = useAuth();
   const Router = useRouter();
-
   const path = usePathname();
-
-  const id = user.id;
+  const { user } = useAuth();
 
   const getPostDetails = async () => {
     if (path.includes("update")) {
@@ -50,11 +46,10 @@ const CreatePost = ({}) => {
   };
 
   useEffect(() => {
-    if(!user) return;
-    if (path.length > 0 ) {
-      getPostDetails();
-    }
-  }, [path, user]);
+    if(user == undefined) return;
+    if(user == null) Router.push("/login");
+    getPostDetails();
+  }, [user]);
 
   useEffect(() => {
     if (image && typeof image !== "string") {
@@ -90,7 +85,7 @@ const CreatePost = ({}) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ desc, id, imageUrl }),
+        body: JSON.stringify({ desc, imageUrl }),
       });
 
       if (createPost.ok) {
