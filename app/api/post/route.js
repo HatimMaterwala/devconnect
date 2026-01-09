@@ -1,7 +1,7 @@
 import { connectToDB } from "@/utils/database";
 import Post from "@/models/Post";
 import User from "@/models/User";
-import { useAuth } from "@/app/context/AuthContext";
+import { getUserFromToken } from "@/utils/getUserFromToken";
 
 export async function POST(req) {
   const { desc, id, imageUrl } = await req.json();
@@ -114,14 +114,15 @@ export async function DELETE(req) {
 
 export async function PUT(req) {
   try {
-    const { user } = useAuth();
+    const user = getUserFromToken();
 
-    if (user.id) {
+    if (!user?.id) {
       return new Response(JSON.stringify(`Unauthorized`), { status: 401 });
     }
 
     // Check For Defined Input
     const { id, gotDescription, gotImage } = await req.json();
+
     if (
       !id ||
       typeof gotDescription !== "string" ||
@@ -138,6 +139,7 @@ export async function PUT(req) {
     if (post.author.toString() !== user.id) {
       return new Response("Forbidden: Not your post", { status: 403 });
     }
+    
     (post.description = gotDescription),
       (post.image = gotImage),
       await post.save();
